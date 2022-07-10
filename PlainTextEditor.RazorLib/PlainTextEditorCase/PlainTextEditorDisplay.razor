@@ -1,4 +1,5 @@
 @using Fluxor.Blazor.Web.Components
+@using Microsoft.AspNetCore.Components.Web.Virtualization
 
 @inherits FluxorComponent
 
@@ -10,7 +11,9 @@ else
 {
     <div id="@PlainTextEditorDisplayId"
          class="rte_plain-text-editor-display @IsFocusedCssClass"
-         @onclick="FocusInputFocusTrapOnClick">
+         @onclick="FocusInputFocusTrapOnClick"
+         @onscroll="OnScroll"
+         tabindex="-1">
 
         <input @ref="_inputFocusTrap"
             @onkeydown:preventDefault="true"
@@ -40,8 +43,8 @@ else
                                 var rowKey = currentPlainTextEditorSelector.Array[rowIndex];
                                 var rowValue = currentPlainTextEditorSelector.Map[rowKey];
 
-                                if (rowIndex > PlainTextEditorSelector.Value.CurrentRowIndex - 10 &&
-                                    rowIndex < PlainTextEditorSelector.Value.CurrentRowIndex + 10)
+                                if (rowIndex > PlainTextEditorSelector.Value.CurrentRowIndex - 2 &&
+                                    rowIndex < PlainTextEditorSelector.Value.CurrentRowIndex + 2)
                                 {
                                     <CascadingValue Name="RowIndex" Value="rowIndex">
                                         <PlainTextEditorRowDisplay @key="rowKey"

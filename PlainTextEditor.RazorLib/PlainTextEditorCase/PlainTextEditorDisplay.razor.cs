@@ -129,6 +129,14 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
         _previousSequenceKey = null;
         _inputFocusTrap.FocusAsync();
     }
+    
+    private async Task OnScroll(EventArgs e)
+    {
+        var scrollTop = await JsRuntime.InvokeAsync<double>("plainTextEditor.getScrollTop",
+            PlainTextEditorDisplayId);
+
+        Console.WriteLine($"scrollTop: {scrollTop}");
+    }
 
     protected override void Dispose(bool disposing)
     {
