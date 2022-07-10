@@ -50,7 +50,15 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
             return value;
         });
 
+        PlainTextEditorSelector.SelectedValueChanged += PlainTextEditorSelectorOnSelectedValueChanged;
+
         base.OnInitialized();
+    }
+
+    private async void PlainTextEditorSelectorOnSelectedValueChanged(object? sender, IPlainTextEditor? e)
+    {
+        Console.WriteLine("PlainTextEditorSelectorOnSelectedValueChanged");
+        await InvokeAsync(StateHasChanged);
     }
 
     protected override void OnAfterRender(bool firstRender)
@@ -130,9 +138,11 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
 
     protected override void Dispose(bool disposing)
     {
+        PlainTextEditorSelector.SelectedValueChanged -= PlainTextEditorSelectorOnSelectedValueChanged;
+
         JsRuntime.InvokeVoidAsync("plainTextEditor.disposeScrollIntoView",
             InputFocusTrapId);
-        
+
         base.Dispose(disposing);
     }
 }

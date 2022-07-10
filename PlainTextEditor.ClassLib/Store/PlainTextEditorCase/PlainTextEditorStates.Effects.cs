@@ -15,16 +15,14 @@ public partial record PlainTextEditorStates
 {
     public class PlainTextEditorStatesEffects
     {
-        private int _counter = 0;
-
+        // TODO: Remove this
         [EffectMethod]
-        public async Task HandleWebAssemblyFixDelayAction(WebAssemblyFixDelayAction webAssemblyFixDelayAction,
+        public Task HandleWebAssemblyFixDelayAction(WebAssemblyFixDelayAction webAssemblyFixDelayAction,
             IDispatcher dispatcher)
         {
-            Console.WriteLine($"HandleWebAssemblyFixDelayAction {_counter++}");
-            await Task.Delay(1);
-
             dispatcher.Dispatch(webAssemblyFixDelayAction.Action);
+            
+            return Task.CompletedTask;
         }
     }
 }
