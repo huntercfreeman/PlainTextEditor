@@ -1,2 +1,2 @@
-# RichTextEditor
-A RichTextEditor written using .NET - Blazor, and C#
+# PlainTextEditor
+A PlainTextEditor written using .NET - Blazor, and C#
