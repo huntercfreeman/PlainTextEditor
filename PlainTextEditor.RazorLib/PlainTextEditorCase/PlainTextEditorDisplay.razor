@@ -40,11 +40,15 @@ else
                                 var rowKey = currentPlainTextEditorSelector.Array[rowIndex];
                                 var rowValue = currentPlainTextEditorSelector.Map[rowKey];
 
-                                <CascadingValue Name="RowIndex" Value="rowIndex">
-                                    <PlainTextEditorRowDisplay @key="rowKey"
-                                                            PlainTextEditorRow="rowValue"
-                                                            MostDigitsInARowNumber="mostDigitsInARowNumber" />
-                                </CascadingValue>
+                                if (rowIndex > PlainTextEditorSelector.Value.CurrentRowIndex - 10 &&
+                                    rowIndex < PlainTextEditorSelector.Value.CurrentRowIndex + 10)
+                                {
+                                    <CascadingValue Name="RowIndex" Value="rowIndex">
+                                        <PlainTextEditorRowDisplay @key="rowKey"
+                                                                   PlainTextEditorRow="rowValue"
+                                                                   MostDigitsInARowNumber="mostDigitsInARowNumber"/>
+                                    </CascadingValue>
+                                }
                             }
                         }
                     </CascadingValue>

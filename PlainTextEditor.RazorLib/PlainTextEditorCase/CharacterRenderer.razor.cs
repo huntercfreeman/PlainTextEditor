@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Fluxor;
 using Microsoft.AspNetCore.Components;
 using PlainTextEditor.ClassLib.Store.PlainTextEditorCase;
-using PlainTextEditor.ClassLib.WebAssemblyFix;
 
 namespace PlainTextEditor.RazorLib.PlainTextEditorCase;
 
@@ -39,13 +38,11 @@ public partial class CharacterRenderer : ComponentBase
         NotifyCharacterWasClicked();
 
         Dispatcher.Dispatch(
-            new WebAssemblyFixDelayAction(
-                new PlainTextEditorOnClickAction(
-                    PlainTextEditorKey,
-                    RowIndex,
-                    TokenIndex,
-                    CharacterIndex
-                )
+            new PlainTextEditorOnClickAction(
+                PlainTextEditorKey,
+                RowIndex,
+                TokenIndex,
+                CharacterIndex
             )
         );
     }

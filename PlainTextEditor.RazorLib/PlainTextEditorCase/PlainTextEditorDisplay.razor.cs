@@ -11,7 +11,6 @@ using PlainTextEditor.ClassLib.Keyboard;
 using PlainTextEditor.ClassLib.Sequence;
 using PlainTextEditor.ClassLib.Store.KeyDownEventCase;
 using PlainTextEditor.ClassLib.Store.PlainTextEditorCase;
-using PlainTextEditor.ClassLib.WebAssemblyFix;
 
 namespace PlainTextEditor.RazorLib.PlainTextEditorCase;
 
@@ -57,14 +56,11 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
 
     private async void PlainTextEditorSelectorOnSelectedValueChanged(object? sender, IPlainTextEditor? e)
     {
-        Console.WriteLine("PlainTextEditorSelectorOnSelectedValueChanged");
         await InvokeAsync(StateHasChanged);
     }
 
     protected override void OnAfterRender(bool firstRender)
     {
-        Console.WriteLine($"OnAfterRender, PlainTextEditorKey: {PlainTextEditorKey}");
-        
         if (firstRender)
         {
            JsRuntime.InvokeVoidAsync("plainTextEditor.subscribeScrollIntoView",
@@ -104,15 +100,13 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
     private void OnKeyDown(KeyboardEventArgs e)
     {
         Dispatcher.Dispatch(
-            new WebAssemblyFixDelayAction(
-                new KeyDownEventAction(PlainTextEditorKey, 
-                    new ClassLib.Keyboard.KeyDownEventRecord(
-                        e.Key,
-                        e.Code,
-                        e.CtrlKey,
-                        e.ShiftKey,
-                        e.AltKey
-                        )
+            new KeyDownEventAction(PlainTextEditorKey, 
+                new ClassLib.Keyboard.KeyDownEventRecord(
+                    e.Key,
+                    e.Code,
+                    e.CtrlKey,
+                    e.ShiftKey,
+                    e.AltKey
                 )
             )
         );

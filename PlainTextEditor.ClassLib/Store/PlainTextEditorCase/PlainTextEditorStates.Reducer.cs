@@ -42,7 +42,9 @@ public partial record PlainTextEditorStates
         public static PlainTextEditorStates ReduceKeyDownEventAction(PlainTextEditorStates previousPlainTextEditorStates,
             KeyDownEventAction keyDownEventAction)
         {
-            Console.WriteLine($"ReduceKeyDownEventAction {keyDownEventAction.KeyDownEventRecord.Key ?? string.Empty}");
+#if DEBUG
+            var startTimeUtc = DateTime.UtcNow;
+#endif
             var nextPlainTextEditorMap = new Dictionary<PlainTextEditorKey, IPlainTextEditor>(previousPlainTextEditorStates.Map);
             var nextPlainTextEditorList = new List<PlainTextEditorKey>(previousPlainTextEditorStates.Array);
             
@@ -60,7 +62,18 @@ public partial record PlainTextEditorStates
 
             nextPlainTextEditorMap[keyDownEventAction.FocusedPlainTextEditorKey] = replacementPlainTextEditor;
 
-            return new PlainTextEditorStates(nextPlainTextEditorMap.ToImmutableDictionary(), nextPlainTextEditorList.ToImmutableArray());
+            var nextImmutableMap = nextPlainTextEditorMap.ToImmutableDictionary();
+            var nextImmutableArray = nextPlainTextEditorList.ToImmutableArray();
+            
+#if DEBUG
+            var endTimeUtc = DateTime.UtcNow;
+
+            var elapsedTimeSpan = endTimeUtc - startTimeUtc;
+
+            Console.WriteLine($"Miliseconds: {elapsedTimeSpan.TotalMilliseconds}");
+#endif
+            
+            return new PlainTextEditorStates(nextImmutableMap, nextImmutableArray);
         }
         
         [ReducerMethod]

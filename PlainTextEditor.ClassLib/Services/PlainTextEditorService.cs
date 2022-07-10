@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Fluxor;
 using PlainTextEditor.ClassLib.Store.PlainTextEditorCase;
-using PlainTextEditor.ClassLib.WebAssemblyFix;
 
 namespace PlainTextEditor.ClassLib.Services;
 
@@ -59,16 +58,12 @@ public class PlainTextEditorService : IPlainTextEditorService, IDisposable
             _onPlainTextEditorConstructedActionsSemaphoreSlim.Release();
         }
 
-        _dispatcher.Dispatch(
-            new WebAssemblyFixDelayAction(
-                new ConstructPlainTextEditorRecordAction(plainTextEditorKey)));
+        _dispatcher.Dispatch(new ConstructPlainTextEditorRecordAction(plainTextEditorKey));
     }
     
     public void DeconstructPlainTextEditor(PlainTextEditorKey plainTextEditorKey)
     {
-        _dispatcher.Dispatch(
-            new WebAssemblyFixDelayAction(
-                new DeconstructPlainTextEditorRecordAction(plainTextEditorKey)));
+        _dispatcher.Dispatch(new DeconstructPlainTextEditorRecordAction(plainTextEditorKey));
     }
 
     public void Dispose()

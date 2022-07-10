@@ -7,7 +7,6 @@ using Fluxor.Blazor.Web.Components;
 using Microsoft.AspNetCore.Components;
 using PlainTextEditor.ClassLib.Sequence;
 using PlainTextEditor.ClassLib.Store.PlainTextEditorCase;
-using PlainTextEditor.ClassLib.WebAssemblyFix;
 
 namespace PlainTextEditor.RazorLib.PlainTextEditorCase;
 
@@ -43,13 +42,6 @@ public partial class PlainTextEditorRowDisplay : FluxorComponent
         ? ActiveRowId
         : string.Empty;
 
-    protected override void OnAfterRender(bool firstRender)
-    {
-        Console.WriteLine($"Row Render, RowIndex: {RowIndex}");
-
-        base.OnAfterRender(firstRender);
-    }
-
     protected override bool ShouldRender()
     {
         var shouldRender = false;
@@ -67,13 +59,11 @@ public partial class PlainTextEditorRowDisplay : FluxorComponent
         if (!_characterWasClicked)
         {
             Dispatcher.Dispatch(
-                new WebAssemblyFixDelayAction(
-                    new PlainTextEditorOnClickAction(
-                        PlainTextEditorKey,
-                        RowIndex,
-                        PlainTextEditorRow.Array.Length - 1,
-                        null
-                    )
+                new PlainTextEditorOnClickAction(
+                    PlainTextEditorKey,
+                    RowIndex,
+                    PlainTextEditorRow.Array.Length - 1,
+                    null
                 )
             );
         }
