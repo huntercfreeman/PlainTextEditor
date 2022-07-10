@@ -1,3 +1,0 @@
-namespace RichTextEditor.ClassLib.Store.RichTextEditorCase;
-
-public record ConstructRichTextEditorRecordAction(RichTextEditorKey RichTextEditorKey);

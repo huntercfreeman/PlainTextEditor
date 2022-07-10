@@ -1,0 +1,55 @@
+@using Fluxor.Blazor.Web.Components
+
+@inherits FluxorComponent
+
+@if (PlainTextEditorSelector.Value is null)
+{
+    <div>PlainTextEditorSelector.Value is null</div>
+}
+else
+{
+    <div id="@PlainTextEditorDisplayId"
+         class="rte_plain-text-editor-display @IsFocusedCssClass"
+         @onclick="FocusInputFocusTrapOnClick">
+
+        <input @ref="_inputFocusTrap"
+            @onkeydown:preventDefault="true"
+            @onkeydown="OnKeyDown"
+            @onfocusin="OnFocusIn"
+            @onfocusout="OnFocusOut"
+            id="@InputFocusTrapId"
+            class="rte_visually-hidden rte_unselectable rte_focus-trap"
+            style="position: absolute; @InputFocusTrapTopStyleCss" />
+        
+        <CascadingValue Value="PlainTextEditorKey">
+            <CascadingValue Value="_isFocused">
+                <CascadingValue Name="CurrentRowIndex" Value="PlainTextEditorSelector.Value.CurrentRowIndex">
+                    <CascadingValue Name="ActiveRowId" Value="ActiveRowId">
+                        @{
+                            var mostDigitsInARowNumber = PlainTextEditorSelector.Value.Array.Length.ToString().Length;
+
+                            // Ensure reference to PlainTextEditorSelector does
+                            // not change while looping over rows
+                            // by making a local reference to it.
+                            var currentPlainTextEditorSelector = PlainTextEditorSelector.Value;
+
+                            for (int i = 0; i < currentPlainTextEditorSelector.Array.Length; i++)
+                            {
+                                var rowIndex = i;
+
+                                var rowKey = currentPlainTextEditorSelector.Array[rowIndex];
+                                var rowValue = currentPlainTextEditorSelector.Map[rowKey];
+
+                                <CascadingValue Name="RowIndex" Value="rowIndex">
+                                    <PlainTextEditorRowDisplay @key="rowKey"
+                                                            PlainTextEditorRow="rowValue"
+                                                            MostDigitsInARowNumber="mostDigitsInARowNumber" />
+                                </CascadingValue>
+                            }
+                        }
+                    </CascadingValue>
+                </CascadingValue>
+            </CascadingValue>
+        </CascadingValue>
+    </div>
+}
