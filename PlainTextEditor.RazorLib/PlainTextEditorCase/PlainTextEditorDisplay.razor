@@ -34,7 +34,7 @@ else
                     <CascadingValue Name="CurrentRowIndex" Value="PlainTextEditorSelector.Value.CurrentRowIndex">
                         <CascadingValue Name="ActiveRowId" Value="ActiveRowId">
                             @{
-                                var mostDigitsInARowNumber = PlainTextEditorSelector.Value.Array.Length.ToString().Length;
+                                var mostDigitsInARowNumber = PlainTextEditorSelector.Value.List.Count.ToString().Length;
 
                                 // Ensure reference to PlainTextEditorSelector does
                                 // not change while looping over rows

@@ -161,19 +161,19 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
             return ValueTask.FromResult(new ItemsProviderResult<(int Index, IPlainTextEditorRow PlainTextEditorRow)>(rowTuples,
                 0));
 
-        var numberOfRows = Math.Min(request.Count, currentPlainTextEditor.Array.Length - request.StartIndex);
+        var numberOfRows = Math.Min(request.Count, currentPlainTextEditor.List.Count - request.StartIndex);
 
         if (numberOfRows > 0)
         {
-            rowTuples = currentPlainTextEditor.Array
-                .Select((key, index) => (index, currentPlainTextEditor.Map[key]))
+            rowTuples = currentPlainTextEditor.List
+                .Select((row, index) => (index, row))
                 .Skip(request.StartIndex)
                 .Take(numberOfRows)
                 .ToArray();
         }
 
         return ValueTask.FromResult(new ItemsProviderResult<(int Index, IPlainTextEditorRow PlainTextEditorRow)>(rowTuples,
-                currentPlainTextEditor.Array.Length));
+                currentPlainTextEditor.List.Count));
     }
 
     protected override void Dispose(bool disposing)

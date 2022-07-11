@@ -94,16 +94,13 @@ public partial record PlainTextEditorStates
                 Array = nextTokenList.ToImmutableArray(),
                 SequenceKey = SequenceKey.NewSequenceKey()
             };
-            
-            var nextRowMap = new Dictionary<PlainTextEditorRowKey, IPlainTextEditorRow>(
-                focusedPlainTextEditorRecord.Map
-            );
 
-            nextRowMap[nextRowInstance.Key] = nextRowInstance;
+            var nextRowList = focusedPlainTextEditorRecord.List.Replace(focusedPlainTextEditorRecord.CurrentPlainTextEditorRow,
+                nextRowInstance);
 
             return focusedPlainTextEditorRecord with
             {
-                Map = nextRowMap.ToImmutableDictionary(),
+                List = nextRowList,
                 CurrentTokenIndex = focusedPlainTextEditorRecord.CurrentTokenIndex + 1
             };
         }
@@ -114,24 +111,23 @@ public partial record PlainTextEditorStates
                 return RemoveStartOfRowToken(focusedPlainTextEditorRecord);
 
             var toBeRemovedTokenKey = focusedPlainTextEditorRecord.CurrentTextTokenKey;
-            var toBeChangedRowKey = focusedPlainTextEditorRecord.CurrentPlainTextEditorRowKey;
+            var toBeChangedRowIndex = focusedPlainTextEditorRecord.CurrentRowIndex;
 
             focusedPlainTextEditorRecord = SetPreviousTokenAsCurrent(focusedPlainTextEditorRecord);
 
-            var nextRowInstance = focusedPlainTextEditorRecord.Map[toBeChangedRowKey]
+            var toBeChangedRow = focusedPlainTextEditorRecord.List[toBeChangedRowIndex];
+
+            var nextRowInstance = toBeChangedRow
                 .With()
                 .Remove(toBeRemovedTokenKey)
                 .Build();
-            
-            var nextRowMap = new Dictionary<PlainTextEditorRowKey, IPlainTextEditorRow>(
-                focusedPlainTextEditorRecord.Map
-            );
 
-            nextRowMap[nextRowInstance.Key] = nextRowInstance;
+            var nextRowList = focusedPlainTextEditorRecord.List
+                .Replace(toBeChangedRow, nextRowInstance);
 
             return focusedPlainTextEditorRecord with
             {
-                Map = nextRowMap.ToImmutableDictionary(),
+                List = nextRowList,
             };
         }
         
@@ -155,11 +151,13 @@ public partial record PlainTextEditorStates
             var toBeDeletedRow = focusedPlainTextEditorRecord.CurrentPlainTextEditorRow;
 
             focusedPlainTextEditorRecord = SetPreviousTokenAsCurrent(focusedPlainTextEditorRecord);
-            
-            return (PlainTextEditorRecord) focusedPlainTextEditorRecord
-                .With()
-                .Remove(toBeDeletedRow.Key)
-                .Build();
+
+            var nextRowList = focusedPlainTextEditorRecord.List.Remove(toBeDeletedRow);
+
+            return focusedPlainTextEditorRecord with
+            {
+                List = nextRowList
+            };
         }
         
         // The replacement token must have the same Key as the one being replaced
@@ -177,16 +175,13 @@ public partial record PlainTextEditorStates
                 Map = nextTokenMap.ToImmutableDictionary(),
                 SequenceKey = SequenceKey.NewSequenceKey()
             };
-            
-            var nextRowMap = new Dictionary<PlainTextEditorRowKey, IPlainTextEditorRow>(
-                focusedPlainTextEditorRecord.Map
-            );
 
-            nextRowMap[nextRowInstance.Key] = nextRowInstance;
+            var nextRowList = focusedPlainTextEditorRecord.List
+                .Replace(focusedPlainTextEditorRecord.CurrentPlainTextEditorRow, nextRowInstance);
 
             return focusedPlainTextEditorRecord with
             {
-                Map = nextRowMap.ToImmutableDictionary()
+                List = nextRowList
             };
         }
 
@@ -221,14 +216,21 @@ public partial record PlainTextEditorStates
             
             var constructedRowInstance = constructedRowBuilder.Build();
 
-            return (PlainTextEditorRecord) focusedPlainTextEditorRecord
-                .With()
-                .Remove(replacementRowInstance.Key)
-                .Insert(focusedPlainTextEditorRecord.CurrentRowIndex, replacementRowInstance)
-                .Insert(focusedPlainTextEditorRecord.CurrentRowIndex + 1, constructedRowInstance)
-                .CurrentTokenIndexOf(0)
-                .CurrentRowIndexOf(focusedPlainTextEditorRecord.CurrentRowIndex + 1)
-                .Build();
+            var nextRowList = focusedPlainTextEditorRecord.List
+                .Remove(currentRow)
+                .InsertRange(focusedPlainTextEditorRecord.CurrentRowIndex,
+                    new IPlainTextEditorRow[]
+                    {
+                        replacementRowInstance,
+                        constructedRowInstance
+                    });
+
+            return focusedPlainTextEditorRecord with
+            {
+                List = nextRowList,
+                CurrentTokenIndex = 0,
+                CurrentRowIndex = focusedPlainTextEditorRecord.CurrentRowIndex + 1
+            };
         }
         
         private static (int rowIndex, int tokenIndex, TextTokenBase token) GetPreviousTokenTuple(PlainTextEditorRecord focusedPlainTextEditorRecord)
@@ -239,9 +241,7 @@ public partial record PlainTextEditorStates
                 {
                     var rowIndex = focusedPlainTextEditorRecord.CurrentRowIndex - 1;
 
-                    var rowKey = focusedPlainTextEditorRecord.Array[rowIndex];
-
-                    var row = focusedPlainTextEditorRecord.Map[rowKey];
+                    var row = focusedPlainTextEditorRecord.List[rowIndex];
 
                     var tokenIndex = row.Array.Length - 1;
 
@@ -290,13 +290,11 @@ public partial record PlainTextEditorStates
 
             if (focusedPlainTextEditorRecord.CurrentTokenIndex == currentRow.Array.Length - 1)
             {
-                if (focusedPlainTextEditorRecord.CurrentRowIndex < focusedPlainTextEditorRecord.Array.Length - 1) 
+                if (focusedPlainTextEditorRecord.CurrentRowIndex < focusedPlainTextEditorRecord.List.Count - 1) 
                 {
                     var rowIndex = focusedPlainTextEditorRecord.CurrentRowIndex + 1;
 
-                    var rowKey = focusedPlainTextEditorRecord.Array[rowIndex];
-
-                    var row = focusedPlainTextEditorRecord.Map[rowKey];
+                    var row = focusedPlainTextEditorRecord.List[rowIndex];
 
                     var tokenIndex = 0;
 
@@ -374,31 +372,27 @@ public partial record PlainTextEditorStates
                     IndexInPlainText = previousTokenTuple.token.PlainText.Length - 1
                 };
 
-                var nextRowMap = new Dictionary<PlainTextEditorRowKey, IPlainTextEditorRow>(
-                    focusedPlainTextEditorRecord.Map
-                );
-
-                nextRowMap[focusedPlainTextEditorRecord.CurrentPlainTextEditorRowKey] = focusedPlainTextEditorRecord
-                    .GetCurrentPlainTextEditorRowAs<PlainTextEditorRow>() with
+                var replacementRow = currentRow with
                     {
                         Map = nextTokenMap.ToImmutableDictionary(),
                         SequenceKey = SequenceKey.NewSequenceKey()
                     };
 
+                var nextRowList = focusedPlainTextEditorRecord.List
+                    .Replace(currentRow, replacementRow);
+
                 return focusedPlainTextEditorRecord with
                 {
-                    Map = nextRowMap.ToImmutableDictionary(),
+                    List = nextRowList,
                     CurrentTokenIndex = previousTokenTuple.tokenIndex
                 };
             }
             else
             {
                 // There was a previous token HOWEVER, it was located on previous row
-                var previousRowKey = focusedPlainTextEditorRecord.Array[previousTokenTuple.rowIndex];
-
-                var previousRow = focusedPlainTextEditorRecord.Map[previousRowKey]
-                    as PlainTextEditorRow
-                    ?? throw new ApplicationException($"Expected {nameof(PlainTextEditorRow)}");
+                var previousRow = focusedPlainTextEditorRecord.List[previousTokenTuple.rowIndex]
+                                         as PlainTextEditorRow
+                                     ?? throw new ApplicationException($"Expected {nameof(PlainTextEditorRow)}");
 
                 var nextTokenMap = new Dictionary<TextTokenKey, ITextToken>(previousRow.Map);
 
@@ -407,19 +401,16 @@ public partial record PlainTextEditorStates
                     IndexInPlainText = previousTokenTuple.token.PlainText.Length - 1
                 };
 
-                var nextRowMap = new Dictionary<PlainTextEditorRowKey, IPlainTextEditorRow>(
-                    focusedPlainTextEditorRecord.Map
-                );
-
-                nextRowMap[previousRowKey] = previousRow with
+                var nextRowList = focusedPlainTextEditorRecord.List.Replace(previousRow,
+                    previousRow with
                     {
                         Map = nextTokenMap.ToImmutableDictionary(),
                         SequenceKey = SequenceKey.NewSequenceKey()
-                    };
+                    });
 
                 return focusedPlainTextEditorRecord with
                 {
-                    Map = nextRowMap.ToImmutableDictionary(),
+                    List = nextRowList,
                     CurrentTokenIndex = previousTokenTuple.tokenIndex,
                     CurrentRowIndex = previousTokenTuple.rowIndex
                 };
@@ -463,29 +454,24 @@ public partial record PlainTextEditorStates
                     IndexInPlainText = 0
                 };
 
-                var nextRowMap = new Dictionary<PlainTextEditorRowKey, IPlainTextEditorRow>(
-                    focusedPlainTextEditorRecord.Map
-                );
-
-                nextRowMap[focusedPlainTextEditorRecord.CurrentPlainTextEditorRowKey] = focusedPlainTextEditorRecord
-                    .GetCurrentPlainTextEditorRowAs<PlainTextEditorRow>() with
-                    {
-                        Map = nextTokenMap.ToImmutableDictionary(),
-                        SequenceKey = SequenceKey.NewSequenceKey()
-                    };
+                var nextRowList = focusedPlainTextEditorRecord.List
+                    .Replace(currentRow,
+                        currentRow with
+                        {
+                            Map = nextTokenMap.ToImmutableDictionary(),
+                            SequenceKey = SequenceKey.NewSequenceKey()
+                        });
 
                 return focusedPlainTextEditorRecord with
                 {
-                    Map = nextRowMap.ToImmutableDictionary(),
+                    List = nextRowList,
                     CurrentTokenIndex = nextTokenTuple.tokenIndex
                 };
             }
             else
             {
                 // There was a next token HOWEVER, it was located on the next row
-                var nextRowKey = focusedPlainTextEditorRecord.Array[nextTokenTuple.rowIndex];
-
-                var nextRow = focusedPlainTextEditorRecord.Map[nextRowKey]
+                var nextRow = focusedPlainTextEditorRecord.List[nextTokenTuple.rowIndex]
                     as PlainTextEditorRow
                     ?? throw new ApplicationException($"Expected {nameof(PlainTextEditorRow)}");
 
@@ -496,19 +482,16 @@ public partial record PlainTextEditorStates
                     IndexInPlainText = 0
                 };
 
-                var nextRowMap = new Dictionary<PlainTextEditorRowKey, IPlainTextEditorRow>(
-                    focusedPlainTextEditorRecord.Map
-                );
-
-                nextRowMap[nextRowKey] = nextRow with
+                var nextRowList = focusedPlainTextEditorRecord.List.Replace(nextRow,
+                    nextRow with
                     {
                         Map = nextTokenMap.ToImmutableDictionary(),
                         SequenceKey = SequenceKey.NewSequenceKey()
-                    };
+                    });
 
                 return focusedPlainTextEditorRecord with
                 {
-                    Map = nextRowMap.ToImmutableDictionary(),
+                    List = nextRowList,
                     CurrentTokenIndex = nextTokenTuple.tokenIndex,
                     CurrentRowIndex = nextTokenTuple.rowIndex
                 };
@@ -537,23 +520,13 @@ public partial record PlainTextEditorStates
 
             var replacementRowInstance = replacementRowBuilder.Build();
 
-            var nextRowMap = new Dictionary<PlainTextEditorRowKey, IPlainTextEditorRow>(
-                focusedPlainTextEditorRecord.Map
-            );
-            
-            var nextRowList = new List<PlainTextEditorRowKey>(
-                focusedPlainTextEditorRecord.Array
-            );
-
-            nextRowList.Remove(toBeMovedRow.Key);
-            nextRowMap.Remove(toBeMovedRow.Key);
-            
-            nextRowMap[replacementRowInstance.Key] = replacementRowInstance;
+            var nextRowList = focusedPlainTextEditorRecord.List.Replace(currentRow,
+                replacementRowInstance)
+                .RemoveAt(focusedPlainTextEditorRecord.CurrentRowIndex + 1);
             
             return focusedPlainTextEditorRecord with
             {
-                Map = nextRowMap.ToImmutableDictionary(),
-                Array = nextRowList.ToImmutableArray()
+                List = nextRowList
             };
         }
 

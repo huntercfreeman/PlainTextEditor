@@ -37,19 +37,20 @@ public partial record PlainTextEditorStates
 
             return focusedPlainTextEditorRecord;
         }
-        
+
         public static PlainTextEditorRecord HandleArrowLeft(PlainTextEditorRecord focusedPlainTextEditorRecord,
             KeyDownEventRecord keyDownEventRecord)
         {
             if (keyDownEventRecord.CtrlWasPressed)
             {
                 var rememberTokenKey = focusedPlainTextEditorRecord.CurrentTextTokenKey;
-                var rememberTokenWasWhitespace = 
+                var rememberTokenWasWhitespace =
                     focusedPlainTextEditorRecord.CurrentTextToken.Kind == TextTokenKind.Whitespace;
 
                 focusedPlainTextEditorRecord = SetPreviousTokenAsCurrent(focusedPlainTextEditorRecord);
 
-                var currentTokenIsWhitespace = focusedPlainTextEditorRecord.CurrentTextToken.Kind == TextTokenKind.Whitespace;
+                var currentTokenIsWhitespace =
+                    focusedPlainTextEditorRecord.CurrentTextToken.Kind == TextTokenKind.Whitespace;
 
                 if ((rememberTokenWasWhitespace && currentTokenIsWhitespace) &&
                     (rememberTokenKey != focusedPlainTextEditorRecord.CurrentTextTokenKey))
@@ -74,41 +75,42 @@ public partial record PlainTextEditorStates
                     IndexInPlainText = currentToken.IndexInPlainText - 1
                 };
 
-                focusedPlainTextEditorRecord = ReplaceCurrentTokenWith(focusedPlainTextEditorRecord, replacementCurrentToken);
+                focusedPlainTextEditorRecord =
+                    ReplaceCurrentTokenWith(focusedPlainTextEditorRecord, replacementCurrentToken);
             }
 
             return focusedPlainTextEditorRecord;
         }
-        
+
         public static PlainTextEditorRecord HandleArrowDown(PlainTextEditorRecord focusedPlainTextEditorRecord,
             KeyDownEventRecord keyDownEventRecord)
         {
-            if (focusedPlainTextEditorRecord.CurrentRowIndex >= 
-                focusedPlainTextEditorRecord.Array.Length - 1)
+            if (focusedPlainTextEditorRecord.CurrentRowIndex >=
+                focusedPlainTextEditorRecord.List.Count - 1)
             {
                 return focusedPlainTextEditorRecord;
             }
 
-            var inclusiveStartingColumnIndexOfCurrentToken = 
+            var inclusiveStartingColumnIndexOfCurrentToken =
                 CalculateCurrentTokenColumnIndexRespectiveToRow(focusedPlainTextEditorRecord);
 
             var currentColumnIndexWithIndexInPlainTextAccountedFor = inclusiveStartingColumnIndexOfCurrentToken +
-                focusedPlainTextEditorRecord.CurrentTextToken.IndexInPlainText!.Value;
+                                                                     focusedPlainTextEditorRecord.CurrentTextToken
+                                                                         .IndexInPlainText!.Value;
 
             var targetRowIndex = focusedPlainTextEditorRecord.CurrentRowIndex + 1;
 
-            var rowBelowKey = focusedPlainTextEditorRecord.Array[targetRowIndex];
-
-            var rowBelow = focusedPlainTextEditorRecord.Map[rowBelowKey];
+            var rowBelow = focusedPlainTextEditorRecord.List[targetRowIndex];
 
             var tokenInRowBelowTuple = CalculateTokenAtColumnIndexRespectiveToRow(
                 focusedPlainTextEditorRecord,
-                rowBelow 
-                    as PlainTextEditorRow 
-                    ?? throw new ApplicationException($"Expected type {nameof(PlainTextEditorRow)}"),
+                rowBelow
+                    as PlainTextEditorRow
+                ?? throw new ApplicationException($"Expected type {nameof(PlainTextEditorRow)}"),
                 currentColumnIndexWithIndexInPlainTextAccountedFor);
 
-            var currentRowReplacement = focusedPlainTextEditorRecord.CurrentPlainTextEditorRow
+            var currentRow = focusedPlainTextEditorRecord.CurrentPlainTextEditorRow;
+            var currentRowReplacement = currentRow
                 .With()
                 .ReplaceMapValue(focusedPlainTextEditorRecord.GetCurrentTextTokenAs<TextTokenBase>() with
                 {
@@ -116,7 +118,7 @@ public partial record PlainTextEditorStates
                 })
                 .Build();
 
-            int? indexInPlainText; 
+            int? indexInPlainText;
 
             if (currentColumnIndexWithIndexInPlainTextAccountedFor <
                 tokenInRowBelowTuple.exclusiveEndingColumnIndex)
@@ -136,16 +138,19 @@ public partial record PlainTextEditorStates
                     IndexInPlainText = indexInPlainText
                 })
                 .Build();
-            
-            return (PlainTextEditorRecord) focusedPlainTextEditorRecord
-                .With()
-                .ReplaceMapValue(currentRowReplacement)
-                .ReplaceMapValue(belowRowReplacement)
-                .CurrentTokenIndexOf(tokenInRowBelowTuple.tokenIndex)
-                .CurrentRowIndexOf(targetRowIndex)
-                .Build();
+
+            var nextRowList = focusedPlainTextEditorRecord.List
+                .Replace(currentRow, currentRowReplacement)
+                .Replace(rowBelow, belowRowReplacement);
+
+            return focusedPlainTextEditorRecord with
+            {
+                List = nextRowList,
+                CurrentTokenIndex = tokenInRowBelowTuple.tokenIndex,
+                CurrentRowIndex = targetRowIndex,
+            };
         }
-        
+
         public static PlainTextEditorRecord HandleArrowUp(PlainTextEditorRecord focusedPlainTextEditorRecord,
             KeyDownEventRecord keyDownEventRecord)
         {
@@ -156,23 +161,22 @@ public partial record PlainTextEditorStates
                 CalculateCurrentTokenColumnIndexRespectiveToRow(focusedPlainTextEditorRecord);
 
             var currentColumnIndexWithIndexInPlainTextAccountedFor = inclusiveStartingColumnIndexOfCurrentToken +
-                focusedPlainTextEditorRecord.CurrentTextToken
-                    .IndexInPlainText!.Value;
+                                                                     focusedPlainTextEditorRecord.CurrentTextToken
+                                                                         .IndexInPlainText!.Value;
 
             var targetRowIndex = focusedPlainTextEditorRecord.CurrentRowIndex - 1;
 
-            var rowAboveKey = focusedPlainTextEditorRecord.Array[targetRowIndex];
-
-            var rowAbove = focusedPlainTextEditorRecord.Map[rowAboveKey];
+            var rowAbove = focusedPlainTextEditorRecord.List[targetRowIndex];
 
             var tokenInRowAboveMetaData = CalculateTokenAtColumnIndexRespectiveToRow(
                 focusedPlainTextEditorRecord,
                 rowAbove
                     as PlainTextEditorRow
-                    ?? throw new ApplicationException($"Expected type {nameof(PlainTextEditorRow)}"),
+                ?? throw new ApplicationException($"Expected type {nameof(PlainTextEditorRow)}"),
                 currentColumnIndexWithIndexInPlainTextAccountedFor);
 
-            var currentRowReplacement = focusedPlainTextEditorRecord.CurrentPlainTextEditorRow
+            var currentRow = focusedPlainTextEditorRecord.CurrentPlainTextEditorRow;
+            var currentRowReplacement = currentRow
                 .With()
                 .ReplaceMapValue(focusedPlainTextEditorRecord.GetCurrentTextTokenAs<TextTokenBase>() with
                 {
@@ -201,27 +205,31 @@ public partial record PlainTextEditorStates
                 })
                 .Build();
 
-            return (PlainTextEditorRecord)focusedPlainTextEditorRecord
-                .With()
-                .ReplaceMapValue(currentRowReplacement)
-                .ReplaceMapValue(aboveRowReplacement)
-                .CurrentTokenIndexOf(tokenInRowAboveMetaData.tokenIndex)
-                .CurrentRowIndexOf(targetRowIndex)
-                .Build();
+            var nextRowList = focusedPlainTextEditorRecord.List
+                .Replace(currentRow, currentRowReplacement)
+                .Replace(rowAbove, aboveRowReplacement);
+
+            return focusedPlainTextEditorRecord with
+            {
+                List = nextRowList,
+                CurrentTokenIndex = tokenInRowAboveMetaData.tokenIndex,
+                CurrentRowIndex = targetRowIndex
+            };
         }
-        
+
         public static PlainTextEditorRecord HandleArrowRight(PlainTextEditorRecord focusedPlainTextEditorRecord,
             KeyDownEventRecord keyDownEventRecord)
         {
             if (keyDownEventRecord.CtrlWasPressed)
             {
                 var rememberTokenKey = focusedPlainTextEditorRecord.CurrentTextTokenKey;
-                var rememberTokenWasWhitespace = 
+                var rememberTokenWasWhitespace =
                     focusedPlainTextEditorRecord.CurrentTextToken.Kind == TextTokenKind.Whitespace;
 
                 focusedPlainTextEditorRecord = SetNextTokenAsCurrent(focusedPlainTextEditorRecord);
 
-                var currentTokenIsWhitespace = focusedPlainTextEditorRecord.CurrentTextToken.Kind == TextTokenKind.Whitespace;
+                var currentTokenIsWhitespace =
+                    focusedPlainTextEditorRecord.CurrentTextToken.Kind == TextTokenKind.Whitespace;
 
                 if ((rememberTokenWasWhitespace && currentTokenIsWhitespace) &&
                     (rememberTokenKey != focusedPlainTextEditorRecord.CurrentTextTokenKey))
@@ -229,8 +237,8 @@ public partial record PlainTextEditorStates
                     return HandleMovement(focusedPlainTextEditorRecord, keyDownEventRecord);
                 }
 
-                if (focusedPlainTextEditorRecord.CurrentTextToken.IndexInPlainText != 
-                        focusedPlainTextEditorRecord.CurrentTextToken.PlainText.Length - 1)
+                if (focusedPlainTextEditorRecord.CurrentTextToken.IndexInPlainText !=
+                    focusedPlainTextEditorRecord.CurrentTextToken.PlainText.Length - 1)
                 {
                     var replacementToken = focusedPlainTextEditorRecord.GetCurrentTextTokenAs<TextTokenBase>() with
                     {
@@ -243,7 +251,7 @@ public partial record PlainTextEditorStates
 
                 return focusedPlainTextEditorRecord;
             }
-            
+
             var currentToken = focusedPlainTextEditorRecord
                 .GetCurrentTextTokenAs<TextTokenBase>();
 
@@ -258,12 +266,13 @@ public partial record PlainTextEditorStates
                     IndexInPlainText = currentToken.IndexInPlainText + 1
                 };
 
-                focusedPlainTextEditorRecord = ReplaceCurrentTokenWith(focusedPlainTextEditorRecord, replacementCurrentToken);
+                focusedPlainTextEditorRecord =
+                    ReplaceCurrentTokenWith(focusedPlainTextEditorRecord, replacementCurrentToken);
             }
-            
+
             return focusedPlainTextEditorRecord;
         }
-        
+
         public static PlainTextEditorRecord HandleHome(PlainTextEditorRecord focusedPlainTextEditorRecord,
             KeyDownEventRecord keyDownEventRecord)
         {
@@ -275,12 +284,13 @@ public partial record PlainTextEditorStates
                 .GetCurrentTextTokenAs<TextTokenBase>();
 
             var replacementCurrentToken = currentToken with
-                {
-                    IndexInPlainText = null
-                };
-            
-            focusedPlainTextEditorRecord = ReplaceCurrentTokenWith(focusedPlainTextEditorRecord, replacementCurrentToken);
-    
+            {
+                IndexInPlainText = null
+            };
+
+            focusedPlainTextEditorRecord =
+                ReplaceCurrentTokenWith(focusedPlainTextEditorRecord, replacementCurrentToken);
+
             focusedPlainTextEditorRecord = focusedPlainTextEditorRecord with
             {
                 CurrentTokenIndex = 0,
@@ -291,34 +301,33 @@ public partial record PlainTextEditorStates
                 .GetCurrentTextTokenAs<TextTokenBase>();
 
             replacementCurrentToken = currentToken with
-                {
-                    IndexInPlainText = currentToken.PlainText.Length - 1
-                };
+            {
+                IndexInPlainText = currentToken.PlainText.Length - 1
+            };
 
             return ReplaceCurrentTokenWith(focusedPlainTextEditorRecord, replacementCurrentToken);
         }
-        
+
         public static PlainTextEditorRecord HandleEnd(PlainTextEditorRecord focusedPlainTextEditorRecord,
             KeyDownEventRecord keyDownEventRecord)
         {
             int targetRowIndex = keyDownEventRecord.CtrlWasPressed
-                ? focusedPlainTextEditorRecord.Array.Length - 1
+                ? focusedPlainTextEditorRecord.List.Count - 1
                 : focusedPlainTextEditorRecord.CurrentRowIndex;
 
             var currentToken = focusedPlainTextEditorRecord
                 .GetCurrentTextTokenAs<TextTokenBase>();
 
             var replacementCurrentToken = currentToken with
-                {
-                    IndexInPlainText = null
-                };
-            
-            focusedPlainTextEditorRecord = ReplaceCurrentTokenWith(focusedPlainTextEditorRecord, replacementCurrentToken);
-    
-            var row = focusedPlainTextEditorRecord
-                .Map[focusedPlainTextEditorRecord
-                    .Array[targetRowIndex]];
-    
+            {
+                IndexInPlainText = null
+            };
+
+            focusedPlainTextEditorRecord =
+                ReplaceCurrentTokenWith(focusedPlainTextEditorRecord, replacementCurrentToken);
+
+            var row = focusedPlainTextEditorRecord.List[targetRowIndex];
+
             focusedPlainTextEditorRecord = focusedPlainTextEditorRecord with
             {
                 CurrentTokenIndex = row.Array.Length - 1,
@@ -329,9 +338,9 @@ public partial record PlainTextEditorStates
                 .GetCurrentTextTokenAs<TextTokenBase>();
 
             replacementCurrentToken = currentToken with
-                {
-                    IndexInPlainText = currentToken.PlainText.Length - 1
-                };
+            {
+                IndexInPlainText = currentToken.PlainText.Length - 1
+            };
 
             return ReplaceCurrentTokenWith(focusedPlainTextEditorRecord, replacementCurrentToken);
         }

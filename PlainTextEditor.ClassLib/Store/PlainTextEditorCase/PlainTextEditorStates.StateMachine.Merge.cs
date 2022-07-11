@@ -50,15 +50,12 @@ public partial record PlainTextEditorStates
                 .Insert(focusedPlainTextEditorRecord.CurrentTokenIndex, replacementToken)
                 .Build();
 
-            var nextRowMap = new Dictionary<PlainTextEditorRowKey, IPlainTextEditorRow>(
-                focusedPlainTextEditorRecord.Map
-            );
-
-            nextRowMap[replacementRow.Key] = replacementRow;
+            var nextRowList = focusedPlainTextEditorRecord.List.Replace(currentRow,
+                replacementRow);
 
             return focusedPlainTextEditorRecord with
             {
-                Map = nextRowMap.ToImmutableDictionary()
+                List = nextRowList
             };
         }
     }

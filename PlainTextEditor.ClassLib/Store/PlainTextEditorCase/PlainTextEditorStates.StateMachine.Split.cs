@@ -55,10 +55,10 @@ public partial record PlainTextEditorStates
             };
 
             var toBeRemovedTokenKey = focusedPlainTextEditorRecord.CurrentTextTokenKey;
-            var toBeChangedRowKey = focusedPlainTextEditorRecord.CurrentPlainTextEditorRowKey;
+            var toBeChangedRowIndex = focusedPlainTextEditorRecord.CurrentRowIndex;
 
             focusedPlainTextEditorRecord = SetPreviousTokenAsCurrent(focusedPlainTextEditorRecord);
-
+            
             var replacementCurrentToken = focusedPlainTextEditorRecord
                 .GetCurrentTextTokenAs<TextTokenBase>() with
                 {
@@ -67,7 +67,9 @@ public partial record PlainTextEditorStates
 
             focusedPlainTextEditorRecord = ReplaceCurrentTokenWith(focusedPlainTextEditorRecord, replacementCurrentToken);
 
-            var nextRowBuilder = focusedPlainTextEditorRecord.Map[toBeChangedRowKey]
+            var toBeChangedRow = focusedPlainTextEditorRecord.List[toBeChangedRowIndex];
+
+            var nextRowBuilder = toBeChangedRow
                 .With();
 
             nextRowBuilder.Remove(toBeRemovedTokenKey);
@@ -85,15 +87,12 @@ public partial record PlainTextEditorStates
             
             var nextRowInstance = nextRowBuilder.Build();
             
-            var nextRowMap = new Dictionary<PlainTextEditorRowKey, IPlainTextEditorRow>(
-                focusedPlainTextEditorRecord.Map
-            );
-
-            nextRowMap[nextRowInstance.Key] = nextRowInstance;
+            var nextRowList = focusedPlainTextEditorRecord.List.Replace(toBeChangedRow,
+                nextRowInstance);
 
             return focusedPlainTextEditorRecord with
             {
-                Map = nextRowMap.ToImmutableDictionary(),
+                List = nextRowList,
                 CurrentTokenIndex = focusedPlainTextEditorRecord.CurrentTokenIndex +
                     (tokenToInsertBetweenSplit is not null ? 2 : 1)
             };
@@ -111,9 +110,10 @@ public partial record PlainTextEditorStates
             var toBeRemovedTokenKey = focusedPlainTextEditorRecord.CurrentTextTokenKey;
             var toBeRemovedTokenIndexInPlainText = focusedPlainTextEditorRecord.CurrentTextToken.IndexInPlainText;
             var rememberTokenIndex = focusedPlainTextEditorRecord.CurrentTokenIndex;
-            var toBeChangedRowKey = focusedPlainTextEditorRecord.CurrentPlainTextEditorRowKey;
+            var toBeChangedRowIndex = focusedPlainTextEditorRecord.CurrentRowIndex;
 
             focusedPlainTextEditorRecord = SetPreviousTokenAsCurrent(focusedPlainTextEditorRecord);
+
 
             var replacementCurrentToken = focusedPlainTextEditorRecord
                 .GetCurrentTextTokenAs<TextTokenBase>() with
@@ -122,8 +122,10 @@ public partial record PlainTextEditorStates
                 };
 
             focusedPlainTextEditorRecord = ReplaceCurrentTokenWith(focusedPlainTextEditorRecord, replacementCurrentToken);
+            
+            var toBeChangedRow = focusedPlainTextEditorRecord.List[toBeChangedRowIndex];
 
-            var nextRowBuilder = focusedPlainTextEditorRecord.Map[toBeChangedRowKey]
+            var nextRowBuilder = toBeChangedRow
                 .With();
 
             nextRowBuilder.Remove(toBeRemovedTokenKey);
@@ -151,16 +153,13 @@ public partial record PlainTextEditorStates
                     tokenToInsertBetweenSplit);
             
             var nextRowInstance = nextRowBuilder.Build();
-            
-            var nextRowMap = new Dictionary<PlainTextEditorRowKey, IPlainTextEditorRow>(
-                focusedPlainTextEditorRecord.Map
-            );
 
-            nextRowMap[nextRowInstance.Key] = nextRowInstance;
+            var nextRowList = focusedPlainTextEditorRecord.List
+                .Replace(toBeChangedRow, nextRowInstance);
 
             return focusedPlainTextEditorRecord with
             {
-                Map = nextRowMap.ToImmutableDictionary(),
+                List = nextRowList,
                 CurrentTokenIndex = rememberTokenIndex + toBeRemovedTokenIndexInPlainText!.Value + 
                     (tokenToInsertBetweenSplit is not null ? 1 : 0)
             };
