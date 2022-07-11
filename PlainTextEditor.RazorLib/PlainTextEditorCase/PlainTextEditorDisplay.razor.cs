@@ -138,6 +138,11 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
         Console.WriteLine($"scrollTop: {scrollTop}");
     }
 
+    private string GetStyleCss()
+    {
+        return $"font-size: {PlainTextEditorSelector.Value?.RichTextEditorOptions.FontSizeInPixels ?? 0}px;";
+    }
+
     protected override void Dispose(bool disposing)
     {
         PlainTextEditorSelector.SelectedValueChanged -= PlainTextEditorSelectorOnSelectedValueChanged;

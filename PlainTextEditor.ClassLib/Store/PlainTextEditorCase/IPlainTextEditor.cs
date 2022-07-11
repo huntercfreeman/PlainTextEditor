@@ -11,4 +11,5 @@ public interface IPlainTextEditor
     public ImmutableArray<PlainTextEditorRowKey> Array { get; }
     public int CurrentRowIndex { get; }
     public int CurrentTokenIndex { get; }
+    public RichTextEditorOptions RichTextEditorOptions { get; }
 }

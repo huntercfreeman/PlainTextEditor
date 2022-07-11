@@ -16,7 +16,8 @@ public partial record PlainTextEditorStates
         ImmutableDictionary<PlainTextEditorRowKey, IPlainTextEditorRow> Map, 
         ImmutableArray<PlainTextEditorRowKey> Array,
         int CurrentRowIndex,
-        int CurrentTokenIndex)
+        int CurrentTokenIndex,
+        RichTextEditorOptions RichTextEditorOptions)
             : IPlainTextEditor
     {
         public PlainTextEditorRecord(PlainTextEditorKey plainTextEditorKey) : this(plainTextEditorKey,
@@ -24,7 +25,8 @@ public partial record PlainTextEditorStates
             new Dictionary<PlainTextEditorRowKey, IPlainTextEditorRow>().ToImmutableDictionary(),
             new PlainTextEditorRowKey[0].ToImmutableArray(),
             CurrentRowIndex: 0,
-            CurrentTokenIndex: 0)
+            CurrentTokenIndex: 0,
+            new RichTextEditorOptions())
         {
             var startingRow = new PlainTextEditorRow();
 
@@ -137,7 +139,8 @@ public partial record PlainTextEditorStates
                 Map.ToImmutableDictionary(),
                 List.ToImmutableArray(),
                 CurrentRowIndex,
-                CurrentTokenIndex);
+                CurrentTokenIndex,
+                new RichTextEditorOptions());
         }
     }
     }
