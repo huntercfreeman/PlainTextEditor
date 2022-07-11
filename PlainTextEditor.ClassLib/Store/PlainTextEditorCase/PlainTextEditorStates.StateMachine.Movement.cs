@@ -47,16 +47,7 @@ public partial record PlainTextEditorStates
                 var rememberTokenWasWhitespace = 
                     focusedPlainTextEditorRecord.CurrentTextToken.Kind == TextTokenKind.Whitespace;
 
-                var targetTokenTuple = GetPreviousTokenTuple(focusedPlainTextEditorRecord);
-
-                while (focusedPlainTextEditorRecord.CurrentTextTokenKey != targetTokenTuple.token.Key)
-                {
-                    focusedPlainTextEditorRecord = HandleMovement(focusedPlainTextEditorRecord, 
-                        keyDownEventRecord with
-                        {
-                            CtrlWasPressed = false
-                        });
-                }
+                focusedPlainTextEditorRecord = SetPreviousTokenAsCurrent(focusedPlainTextEditorRecord);
 
                 var currentTokenIsWhitespace = focusedPlainTextEditorRecord.CurrentTextToken.Kind == TextTokenKind.Whitespace;
 
@@ -224,16 +215,7 @@ public partial record PlainTextEditorStates
                 var rememberTokenWasWhitespace = 
                     focusedPlainTextEditorRecord.CurrentTextToken.Kind == TextTokenKind.Whitespace;
 
-                var targetTokenTuple = GetNextTokenTuple(focusedPlainTextEditorRecord);
-
-                while (focusedPlainTextEditorRecord.CurrentTextTokenKey != targetTokenTuple.token.Key)
-                {
-                    focusedPlainTextEditorRecord = HandleMovement(focusedPlainTextEditorRecord, 
-                        keyDownEventRecord with
-                        {
-                            CtrlWasPressed = false
-                        });
-                }
+                focusedPlainTextEditorRecord = SetNextTokenAsCurrent(focusedPlainTextEditorRecord);
 
                 var currentTokenIsWhitespace = focusedPlainTextEditorRecord.CurrentTextToken.Kind == TextTokenKind.Whitespace;
 

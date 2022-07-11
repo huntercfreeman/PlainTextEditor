@@ -9,8 +9,6 @@ public partial class PlainTextEditorSpawn : ComponentBase, IDisposable
 {
     [Inject]
     private IPlainTextEditorService PlainTextEditorService { get; set; } = null!;
-    [Inject]
-    private IDispatcher Dispatcher { get; set; } = null!;
 
     private PlainTextEditorKey _plainTextEditorKey = PlainTextEditorKey.NewPlainTextEditorKey();
     private bool _plainTextEditorWasInitialized;
