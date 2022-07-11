@@ -148,16 +148,22 @@ public partial record PlainTextEditorStates
 
         private static PlainTextEditorRecord RemoveCurrentRow(PlainTextEditorRecord focusedPlainTextEditorRecord)
         {
-            var toBeDeletedRow = focusedPlainTextEditorRecord.CurrentPlainTextEditorRow;
+            var rememberRowIndex = focusedPlainTextEditorRecord.CurrentRowIndex;
 
             focusedPlainTextEditorRecord = SetPreviousTokenAsCurrent(focusedPlainTextEditorRecord);
 
-            var nextRowList = focusedPlainTextEditorRecord.List.Remove(toBeDeletedRow);
-
-            return focusedPlainTextEditorRecord with
+            if (focusedPlainTextEditorRecord.CurrentRowIndex == rememberRowIndex - 1)
             {
-                List = nextRowList
-            };
+                var nextRowList = focusedPlainTextEditorRecord.List.RemoveAt(focusedPlainTextEditorRecord.CurrentRowIndex + 1);
+
+                return focusedPlainTextEditorRecord with
+                {
+                    List = nextRowList
+                };
+            }
+
+
+            return focusedPlainTextEditorRecord;
         }
         
         // The replacement token must have the same Key as the one being replaced
