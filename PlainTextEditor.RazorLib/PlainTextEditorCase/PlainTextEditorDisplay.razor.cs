@@ -30,7 +30,6 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
     private bool _isFocused;
     private ElementReference _inputFocusTrap;
     private Virtualize<(int Index, IPlainTextEditorRow PlainTextEditorRow)> _rowVirtualizeComponent = null!;
-    private OnAfterRenderDelay _onAfterRenderDelay;
 
     private string PlainTextEditorDisplayId => $"rte_plain-text-editor-display_{PlainTextEditorKey.Guid}";
     private string InputFocusTrapId => $"rte_focus-trap_{PlainTextEditorKey.Guid}";
