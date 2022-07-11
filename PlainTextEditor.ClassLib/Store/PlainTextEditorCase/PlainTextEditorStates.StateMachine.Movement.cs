@@ -225,14 +225,16 @@ public partial record PlainTextEditorStates
                     return HandleMovement(focusedPlainTextEditorRecord, keyDownEventRecord);
                 }
 
-                while (focusedPlainTextEditorRecord.CurrentTextToken.IndexInPlainText != 
+                if (focusedPlainTextEditorRecord.CurrentTextToken.IndexInPlainText != 
                         focusedPlainTextEditorRecord.CurrentTextToken.PlainText.Length - 1)
                 {
-                    focusedPlainTextEditorRecord = HandleMovement(focusedPlainTextEditorRecord, 
-                        keyDownEventRecord with
-                        {
-                            CtrlWasPressed = false
-                        });
+                    var replacementToken = focusedPlainTextEditorRecord.GetCurrentTextTokenAs<TextTokenBase>() with
+                    {
+                        IndexInPlainText = focusedPlainTextEditorRecord.CurrentTextToken.PlainText.Length - 1
+                    };
+
+                    focusedPlainTextEditorRecord = ReplaceCurrentTokenWith(focusedPlainTextEditorRecord,
+                        replacementToken);
                 }
 
                 return focusedPlainTextEditorRecord;
