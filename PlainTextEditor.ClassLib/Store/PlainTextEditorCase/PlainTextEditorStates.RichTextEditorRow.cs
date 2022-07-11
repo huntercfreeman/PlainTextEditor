@@ -81,6 +81,13 @@ public partial record PlainTextEditorStates
 
                 return this;
             }
+
+            public IPlainTextEditorRowBuilder ReplaceMapValue(ITextToken token)
+            {
+                Map[token.Key] = token;
+
+                return this;
+            }
             
             public IPlainTextEditorRow Build()
             {

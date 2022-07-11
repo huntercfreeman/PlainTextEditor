@@ -585,7 +585,7 @@ public partial record PlainTextEditorStates
 			return 0;
 		}
 
-        private static (int inclusiveStartingColumnIndex, int exclusiveEndingColumnIndex, TextTokenBase token) CalculateTokenAtColumnIndexRespectiveToRow(
+        private static (int inclusiveStartingColumnIndex, int exclusiveEndingColumnIndex, int tokenIndex, TextTokenBase token) CalculateTokenAtColumnIndexRespectiveToRow(
 			PlainTextEditorRecord focusedPlainTextEditorRecord,
 			PlainTextEditorRow row,
 			int columnIndex)
@@ -604,6 +604,7 @@ public partial record PlainTextEditorStates
                     return (
                         rollingCount - token.PlainText.Length,
                         rollingCount,
+                        i,
                         token as TextTokenBase
                             ?? throw new ApplicationException($"Expected type {nameof(TextTokenBase)}")
                     );
