@@ -6,6 +6,7 @@ using Fluxor;
 using Fluxor.Blazor.Web.Components;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Components.Web.Virtualization;
 using Microsoft.JSInterop;
 using PlainTextEditor.ClassLib.Keyboard;
 using PlainTextEditor.ClassLib.Sequence;
@@ -28,6 +29,7 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
 
     private bool _isFocused;
     private ElementReference _inputFocusTrap;
+    private Virtualize<(int Index, IPlainTextEditorRow PlainTextEditorRow)> _rowVirtualizeComponent = null!;
 
     private string PlainTextEditorDisplayId => $"rte_plain-text-editor-display_{PlainTextEditorKey.Guid}";
     private string InputFocusTrapId => $"rte_focus-trap_{PlainTextEditorKey.Guid}";
@@ -36,8 +38,8 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
     private string IsFocusedCssClass => _isFocused
         ? "rte_focused"
         : "";
-    
-    private string InputFocusTrapTopStyleCss => $"top: calc({PlainTextEditorSelector.Value!.CurrentRowIndex + 1}em + {PlainTextEditorSelector.Value!.CurrentRowIndex * 8.6767}px - 25px)";
+
+    private string InputFocusTrapTopStyleCss => string.Empty; //$"top: calc({PlainTextEditorSelector.Value!.CurrentRowIndex + 1}em + {PlainTextEditorSelector.Value!.CurrentRowIndex * 8.6767}px - 25px)";
 
     private SequenceKey? _previousSequenceKey;
 
@@ -56,6 +58,8 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
 
     private async void PlainTextEditorSelectorOnSelectedValueChanged(object? sender, IPlainTextEditor? e)
     {
+        await _rowVirtualizeComponent.RefreshDataAsync();
+
         await InvokeAsync(StateHasChanged);
     }
 
@@ -68,8 +72,8 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
                 PlainTextEditorKey.Guid);
         }
 
-        JsRuntime.InvokeVoidAsync("plainTextEditor.scrollIntoViewIfOutOfViewport",
-            _inputFocusTrap);
+        //JsRuntime.InvokeVoidAsync("plainTextEditor.scrollIntoViewIfOutOfViewport",
+        //    _inputFocusTrap);
 
         base.OnAfterRender(firstRender);
     }
@@ -141,6 +145,33 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
     private string GetStyleCss()
     {
         return $"font-size: {PlainTextEditorSelector.Value?.RichTextEditorOptions.FontSizeInPixels ?? 0}px;";
+    }
+
+    private ValueTask<ItemsProviderResult<(int Index, IPlainTextEditorRow PlainTextEditorRow)>> RowItemsProvider(
+        ItemsProviderRequest request)
+    {
+        var currentPlainTextEditor = PlainTextEditorSelector.Value;
+
+        (int Index, IPlainTextEditorRow PlainTextEditorRow)[] rowTuples =
+            Array.Empty<(int Index, IPlainTextEditorRow PlainTextEditorRow)>();
+
+        if (currentPlainTextEditor is null)
+            return ValueTask.FromResult(new ItemsProviderResult<(int Index, IPlainTextEditorRow PlainTextEditorRow)>(rowTuples,
+                0));
+
+        var numberOfRows = Math.Min(request.Count, currentPlainTextEditor.Array.Length - request.StartIndex);
+
+        if (numberOfRows > 0)
+        {
+            rowTuples = currentPlainTextEditor.Array
+                .Select((key, index) => (index, currentPlainTextEditor.Map[key]))
+                .Skip(request.StartIndex)
+                .Take(numberOfRows)
+                .ToArray();
+        }
+
+        return ValueTask.FromResult(new ItemsProviderResult<(int Index, IPlainTextEditorRow PlainTextEditorRow)>(rowTuples,
+                currentPlainTextEditor.Array.Length));
     }
 
     protected override void Dispose(bool disposing)

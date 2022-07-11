@@ -32,6 +32,7 @@ public partial class PlainTextEditorRowDisplay : FluxorComponent
     private bool _characterWasClicked;
     private SequenceKey? _previousSequenceKey;
     private int _previousMostDigitsInARowNumber;
+    private bool _previousShouldDisplay;
 
     private string IsActiveCss => PlainTextEditorCurrentRowIndex == RowIndex
         ? "rte_active"
@@ -50,7 +51,7 @@ public partial class PlainTextEditorRowDisplay : FluxorComponent
         if (PlainTextEditorRow.SequenceKey != _previousSequenceKey ||
             MostDigitsInARowNumber != _previousMostDigitsInARowNumber)
         {
-            _previousMostDigitsInARowNumber = MostDigitsInARowNumber; 
+            _previousMostDigitsInARowNumber = MostDigitsInARowNumber;
             shouldRender = true;
         }
 

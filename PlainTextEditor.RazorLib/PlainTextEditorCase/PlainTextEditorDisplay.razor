@@ -14,14 +14,7 @@ else
             Font Size: @(PlainTextEditorSelector.Value.RichTextEditorOptions.FontSizeInPixels)px
         </div>
 
-        <div id="@PlainTextEditorDisplayId"
-         class="rte_plain-text-editor-display @IsFocusedCssClass"
-         style="@GetStyleCss()"
-         @onclick="FocusInputFocusTrapOnClick"
-         @onscroll="OnScroll"
-         tabindex="-1">
-
-            <input @ref="_inputFocusTrap"
+        <input @ref="_inputFocusTrap"
                @onkeydown:preventDefault="true"
                @onkeydown="OnKeyDown"
                @onfocusin="OnFocusIn"
@@ -29,6 +22,15 @@ else
                id="@InputFocusTrapId"
                class="rte_visually-hidden rte_unselectable rte_focus-trap"
                style="position: absolute; @InputFocusTrapTopStyleCss" />
+
+        <div id="@PlainTextEditorDisplayId"
+         class="rte_plain-text-editor-display @IsFocusedCssClass"
+         style="@GetStyleCss()"
+         @onclick="FocusInputFocusTrapOnClick"
+         @onscroll="OnScroll"
+         tabindex="-1">
+
+            
 
             
 
@@ -39,28 +41,28 @@ else
                             @{
                                 var mostDigitsInARowNumber = PlainTextEditorSelector.Value.Array.Length.ToString().Length;
 
-                            // Ensure reference to PlainTextEditorSelector does
-                            // not change while looping over rows
-                            // by making a local reference to it.
+                                // Ensure reference to PlainTextEditorSelector does
+                                // not change while looping over rows
+                                // by making a local reference to it.
                                 var currentPlainTextEditorSelector = PlainTextEditorSelector.Value;
 
-                                for (int i = 0; i < currentPlainTextEditorSelector.Array.Length; i++)
-                                {
-                                    var rowIndex = i;
-
-                                    var rowKey = currentPlainTextEditorSelector.Array[rowIndex];
-                                    var rowValue = currentPlainTextEditorSelector.Map[rowKey];
-
-                                    if (rowIndex > PlainTextEditorSelector.Value.CurrentRowIndex - 2 &&
-                                    rowIndex < PlainTextEditorSelector.Value.CurrentRowIndex + 2)
-                                    {
-                                    <CascadingValue Name="RowIndex" Value="rowIndex">
-                                        <PlainTextEditorRowDisplay @key="rowKey"
-                                                       PlainTextEditorRow="rowValue"
-                                                       MostDigitsInARowNumber="mostDigitsInARowNumber" />
+                                <Virtualize @ref="_rowVirtualizeComponent" ItemsProvider="RowItemsProvider" Context="rowTuple" ItemSize="50">
+                                    <CascadingValue Name="RowIndex" Value="rowTuple.Index">
+                                        <PlainTextEditorRowDisplay @key="rowTuple.PlainTextEditorRow.Key"
+                                                                   PlainTextEditorRow="rowTuple.PlainTextEditorRow"
+                                                                   MostDigitsInARowNumber="mostDigitsInARowNumber" />
                                     </CascadingValue>
-                                    }
-                                }
+                                </Virtualize>
+
+                                //for (int i = 0; i < currentPlainTextEditorSelector.Array.Length; i++)
+                                //{
+                                //    var rowIndex = i;
+
+                                //    var rowKey = currentPlainTextEditorSelector.Array[rowIndex];
+                                //    var rowValue = currentPlainTextEditorSelector.Map[rowKey];
+
+                                        
+                                //}
                         }
                     </CascadingValue>
                 </CascadingValue>
