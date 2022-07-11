@@ -2,9 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BlazorWorker.BackgroundServiceFactory;
-using BlazorWorker.Core;
-using BlazorWorker.WorkerBackgroundService;
 using Fluxor;
 using Fluxor.Blazor.Web.Components;
 using Microsoft.AspNetCore.Components;
@@ -26,8 +23,6 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
     private IDispatcher Dispatcher { get; set; } = null!;
     [Inject]
     private IJSRuntime JsRuntime { get; set; } = null!;
-    [Inject]
-    private IWorkerFactory WorkerFactory { get; set; } = null!;
 
     [Parameter, EditorRequired]
     public PlainTextEditorKey PlainTextEditorKey { get; set; } = null!;
@@ -35,7 +30,6 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
     private bool _isFocused;
     private ElementReference _inputFocusTrap;
     private Virtualize<(int Index, IPlainTextEditorRow PlainTextEditorRow)> _rowVirtualizeComponent = null!;
-    private IWorkerBackgroundService<MyCPUIntensiveService>? _service;
     private OnAfterRenderDelay _onAfterRenderDelay;
 
     private string PlainTextEditorDisplayId => $"rte_plain-text-editor-display_{PlainTextEditorKey.Guid}";
@@ -49,16 +43,6 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
     private string InputFocusTrapTopStyleCss => string.Empty; //$"top: calc({PlainTextEditorSelector.Value!.CurrentRowIndex + 1}em + {PlainTextEditorSelector.Value!.CurrentRowIndex * 8.6767}px - 25px)";
 
     private SequenceKey? _previousSequenceKey;
-
-    protected override async Task OnInitializedAsync()
-    {
-        var worker = await WorkerFactory.CreateAsync();
-
-        _service = await worker
-            .CreateBackgroundServiceAsync<MyCPUIntensiveService>();
-
-        await base.OnInitializedAsync();
-    }
 
     protected override void OnInitialized()
     {

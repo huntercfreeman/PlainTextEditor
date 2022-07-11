@@ -14,8 +14,6 @@ else
             Font Size: @(PlainTextEditorSelector.Value.RichTextEditorOptions.FontSizeInPixels)px
         </div>
 
-        <OnAfterRenderDelay @ref="_onAfterRenderDelay" />
-
         <input @ref="_inputFocusTrap"
            @onkeydown:preventDefault="true"
            @onkeydown="OnKeyDown"
