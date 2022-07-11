@@ -8,4 +8,5 @@ using PlainTextEditor.ClassLib.Store.PlainTextEditorCase;
 
 namespace PlainTextEditor.ClassLib.Store.KeyDownEventCase;
 
-public record KeyDownEventAction(PlainTextEditorKey FocusedPlainTextEditorKey, KeyDownEventRecord KeyDownEventRecord);
+public record KeyDownEventAction(PlainTextEditorKey FocusedPlainTextEditorKey, 
+    KeyDownEventRecord KeyDownEventRecord);

@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BlazorWorker.BackgroundServiceFactory;
+using BlazorWorker.Core;
+using BlazorWorker.WorkerBackgroundService;
 using Fluxor;
 using Fluxor.Blazor.Web.Components;
 using Microsoft.AspNetCore.Components;
@@ -23,6 +26,8 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
     private IDispatcher Dispatcher { get; set; } = null!;
     [Inject]
     private IJSRuntime JsRuntime { get; set; } = null!;
+    [Inject]
+    private IWorkerFactory WorkerFactory { get; set; } = null!;
 
     [Parameter, EditorRequired]
     public PlainTextEditorKey PlainTextEditorKey { get; set; } = null!;
@@ -30,6 +35,8 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
     private bool _isFocused;
     private ElementReference _inputFocusTrap;
     private Virtualize<(int Index, IPlainTextEditorRow PlainTextEditorRow)> _rowVirtualizeComponent = null!;
+    private IWorkerBackgroundService<MyCPUIntensiveService>? _service;
+    private OnAfterRenderDelay _onAfterRenderDelay;
 
     private string PlainTextEditorDisplayId => $"rte_plain-text-editor-display_{PlainTextEditorKey.Guid}";
     private string InputFocusTrapId => $"rte_focus-trap_{PlainTextEditorKey.Guid}";
@@ -42,6 +49,16 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
     private string InputFocusTrapTopStyleCss => string.Empty; //$"top: calc({PlainTextEditorSelector.Value!.CurrentRowIndex + 1}em + {PlainTextEditorSelector.Value!.CurrentRowIndex * 8.6767}px - 25px)";
 
     private SequenceKey? _previousSequenceKey;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var worker = await WorkerFactory.CreateAsync();
+
+        _service = await worker
+            .CreateBackgroundServiceAsync<MyCPUIntensiveService>();
+
+        await base.OnInitializedAsync();
+    }
 
     protected override void OnInitialized()
     {
@@ -72,10 +89,12 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
                 PlainTextEditorKey.Guid);
         }
 
-        //JsRuntime.InvokeVoidAsync("plainTextEditor.scrollIntoViewIfOutOfViewport",
-        //    _inputFocusTrap);
-
         base.OnAfterRender(firstRender);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     /// <summary>
@@ -101,10 +120,10 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
         return shouldRender;
     }
 
-    private void OnKeyDown(KeyboardEventArgs e)
+    private async Task OnKeyDown(KeyboardEventArgs e)
     {
         Dispatcher.Dispatch(
-            new KeyDownEventAction(PlainTextEditorKey, 
+            new KeyDownEventAction(PlainTextEditorKey,
                 new ClassLib.Keyboard.KeyDownEventRecord(
                     e.Key,
                     e.Code,

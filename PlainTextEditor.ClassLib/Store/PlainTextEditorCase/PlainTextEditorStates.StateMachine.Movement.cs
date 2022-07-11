@@ -276,13 +276,6 @@ public partial record PlainTextEditorStates
             return focusedPlainTextEditorRecord;
         }
         
-        // Note originally I thought I had to 'walk' the cursor the entire distance
-        // inorder to highlight any text traveled over.
-        //
-        // When doing highlighting instead keep track of the before 
-        // movement document index (the character index within the document itself)
-        // and the document index of the ending position. This is not the exact word
-        // for word solution but just a general reminder of the idea.
         public static PlainTextEditorRecord HandleHome(PlainTextEditorRecord focusedPlainTextEditorRecord,
             KeyDownEventRecord keyDownEventRecord)
         {

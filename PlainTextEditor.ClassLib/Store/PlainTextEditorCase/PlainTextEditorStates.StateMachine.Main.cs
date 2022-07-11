@@ -147,7 +147,6 @@ public partial record PlainTextEditorStates
                 return RemoveCurrentRow(focusedPlainTextEditorRecord);
             }
 
-            // TODO: Move current row to end of previous row
             return focusedPlainTextEditorRecord;
         }
 

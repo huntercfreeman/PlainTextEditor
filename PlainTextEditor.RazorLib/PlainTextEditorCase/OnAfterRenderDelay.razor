@@ -1,0 +1,9 @@
+﻿<div>
+    Miliseconds Delay: <input type="number" @bind="_onAfterRenderDelay" @bind:event="oninput" />
+    <br />
+    @_onAfterRenderDelay ms
+</div>
+
+@code {
+    public int _onAfterRenderDelay;
+}

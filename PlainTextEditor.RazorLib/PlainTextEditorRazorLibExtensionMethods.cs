@@ -1,3 +1,4 @@
+using BlazorWorker.Core;
 using Microsoft.Extensions.DependencyInjection;
 using PlainTextEditor.ClassLib;
 
@@ -8,6 +9,7 @@ public static class PlainTextEditorRazorLibExtensionMethods
     public static IServiceCollection AddPlainTextEditorRazorLibServices(this IServiceCollection services)
     {
         return services
-            .AddPlainTextEditorClassLibServices();
+            .AddPlainTextEditorClassLibServices()
+            .AddWorkerFactory();
     }
 }
