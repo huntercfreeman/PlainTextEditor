@@ -509,7 +509,12 @@ public partial record PlainTextEditorStates
             var toBeMovedRow = focusedPlainTextEditorRecord
                 .GetCurrentPlainTextEditorRowAs<PlainTextEditorRow>();
 
+            var rememberTokenKey = focusedPlainTextEditorRecord.CurrentTextTokenKey;
+
             focusedPlainTextEditorRecord = SetPreviousTokenAsCurrent(focusedPlainTextEditorRecord);
+
+            if (focusedPlainTextEditorRecord.CurrentTextTokenKey == rememberTokenKey)
+                return focusedPlainTextEditorRecord;
 
             var currentRow = focusedPlainTextEditorRecord
                 .GetCurrentPlainTextEditorRowAs<PlainTextEditorRow>();

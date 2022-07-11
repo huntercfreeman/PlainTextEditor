@@ -27,23 +27,29 @@ public partial record PlainTextEditorStates
         public static PlainTextEditorRecord HandleBackspaceKey(PlainTextEditorRecord focusedPlainTextEditorRecord,
             KeyDownEventRecord keyDownEventRecord)
         {
+            Console.WriteLine("HandleBackspaceKey");
             if (focusedPlainTextEditorRecord.CurrentTextToken.Kind == TextTokenKind.Default)
             {
+                Console.WriteLine("HandleDefaultBackspace");
                 return HandleDefaultBackspace(focusedPlainTextEditorRecord, keyDownEventRecord);
             }
 
             if (focusedPlainTextEditorRecord.CurrentTextToken.Kind == TextTokenKind.StartOfRow &&
                 focusedPlainTextEditorRecord.GetCurrentPlainTextEditorRowAs<PlainTextEditorRow>().Array.Length > 1)
             {
+                Console.WriteLine("MoveCurrentRowToEndOfPreviousRow");
                 focusedPlainTextEditorRecord = MoveCurrentRowToEndOfPreviousRow(focusedPlainTextEditorRecord);
             }
             else
             {
+                Console.WriteLine("RemoveCurrentToken");
                 focusedPlainTextEditorRecord = RemoveCurrentToken(focusedPlainTextEditorRecord);
             }
 
+            Console.WriteLine("MergeTokensIfApplicable");
             focusedPlainTextEditorRecord = MergeTokensIfApplicable(focusedPlainTextEditorRecord);
 
+            Console.WriteLine("return");
             return focusedPlainTextEditorRecord;
         }
     }
