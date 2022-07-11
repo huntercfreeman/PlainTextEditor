@@ -1,17 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Fluxor;
 using Microsoft.AspNetCore.Components;
 using PlainTextEditor.ClassLib.Services;
 using PlainTextEditor.ClassLib.Store.PlainTextEditorCase;
 
-namespace PlainTextEditor.BlazorServerSide.Components;
+namespace PlainTextEditor.RazorLib.PlainTextEditorCase;
 
 public partial class PlainTextEditorSpawn : ComponentBase, IDisposable
 {
     [Inject]
     private IPlainTextEditorService PlainTextEditorService { get; set; } = null!;
+    [Inject]
+    private IDispatcher Dispatcher { get; set; } = null!;
 
     private PlainTextEditorKey _plainTextEditorKey = PlainTextEditorKey.NewPlainTextEditorKey();
     private bool _plainTextEditorWasInitialized;

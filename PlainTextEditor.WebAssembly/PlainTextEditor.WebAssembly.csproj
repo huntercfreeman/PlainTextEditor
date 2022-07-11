@@ -15,10 +15,6 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\PlainTextEditor.RazorLib\PlainTextEditor.RazorLib.csproj" />
 	</ItemGroup>
-
-	<ItemGroup>
-	  <AdditionalFiles Include="Components\PlainTextEditorSpawn.razor" />
-	</ItemGroup>
 	
 	
 </Project>

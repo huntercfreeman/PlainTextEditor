@@ -21,8 +21,6 @@
 
 .rte_plain-text-editor-wrapping {
     padding: 10px;
-    color: var(--mud-palette-text-primary);
-    background-color: var(--mud-palette-dark-hover);
 }
 
 .rte_plain-text-editor-display {
@@ -33,8 +31,6 @@
     overflow: auto;
     border: 1.5px solid black;
     font-family: monospace;
-    color: var(--mud-palette-text-primary);
-    background-color: var(--mud-palette-background);
     position: relative;
 }
 

@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlainTextEditor.ClassLib", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlainTextEditor.RazorLib", "PlainTextEditor.RazorLib\PlainTextEditor.RazorLib.csproj", "{40031FB3-F0D3-42F9-9F67-32F29BF7FCE4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlainTextEditor.Maui", "PlainTextEditor.Maui\PlainTextEditor.Maui.csproj", "{954120B2-877D-47B6-B55D-2955A28C5840}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,12 @@ Global
 		{40031FB3-F0D3-42F9-9F67-32F29BF7FCE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40031FB3-F0D3-42F9-9F67-32F29BF7FCE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40031FB3-F0D3-42F9-9F67-32F29BF7FCE4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{954120B2-877D-47B6-B55D-2955A28C5840}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{954120B2-877D-47B6-B55D-2955A28C5840}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{954120B2-877D-47B6-B55D-2955A28C5840}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{954120B2-877D-47B6-B55D-2955A28C5840}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{954120B2-877D-47B6-B55D-2955A28C5840}.Release|Any CPU.Build.0 = Release|Any CPU
+		{954120B2-877D-47B6-B55D-2955A28C5840}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -48,6 +56,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{504BF455-733F-4662-8067-FDE6D592722A} = {9E885BE5-B6D9-4CB4-A4AC-764EA2BFA9E4}
 		{923FF6F3-3FE7-4B72-B37D-5E8C923A1109} = {9E885BE5-B6D9-4CB4-A4AC-764EA2BFA9E4}
+		{954120B2-877D-47B6-B55D-2955A28C5840} = {9E885BE5-B6D9-4CB4-A4AC-764EA2BFA9E4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CF5C7044-00A3-49F9-8ACD-E80E6B3A3B99}
