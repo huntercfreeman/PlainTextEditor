@@ -28,18 +28,19 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
     public PlainTextEditorKey PlainTextEditorKey { get; set; } = null!;
 
     private bool _isFocused;
-    private ElementReference _inputFocusTrap;
+    private ElementReference _plainTextEditor;
     private Virtualize<(int Index, IPlainTextEditorRow PlainTextEditorRow)> _rowVirtualizeComponent = null!;
+    private int _hadOnKeyDownEventCounter;
 
     private string PlainTextEditorDisplayId => $"rte_plain-text-editor-display_{PlainTextEditorKey.Guid}";
-    private string InputFocusTrapId => $"rte_focus-trap_{PlainTextEditorKey.Guid}";
+    private string ActiveRowPositionMarker => $"rte_focus-trap_{PlainTextEditorKey.Guid}";
     private string ActiveRowId => $"rte_active-row_{PlainTextEditorKey.Guid}";
 
     private string IsFocusedCssClass => _isFocused
         ? "rte_focused"
         : "";
 
-    private string InputFocusTrapTopStyleCss => string.Empty; //$"top: calc({PlainTextEditorSelector.Value!.CurrentRowIndex + 1}em + {PlainTextEditorSelector.Value!.CurrentRowIndex * 8.6767}px - 25px)";
+    private string InputFocusTrapTopStyleCss => $"top: calc({PlainTextEditorSelector.Value!.CurrentRowIndex * 28.4}px - 12px);";
 
     private SequenceKey? _previousSequenceKey;
 
@@ -68,8 +69,16 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
         if (firstRender)
         {
            JsRuntime.InvokeVoidAsync("plainTextEditor.subscribeScrollIntoView",
-                InputFocusTrapId,
+                ActiveRowPositionMarker,
                 PlainTextEditorKey.Guid);
+        }
+
+        if (_hadOnKeyDownEventCounter > 0)
+        {
+            _hadOnKeyDownEventCounter = 0;
+
+            JsRuntime.InvokeVoidAsync("plainTextEditor.scrollIntoViewIfOutOfViewport",
+                ActiveRowPositionMarker);
         }
 
         base.OnAfterRender(firstRender);
@@ -105,6 +114,8 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
 
     private async Task OnKeyDown(KeyboardEventArgs e)
     {
+        _hadOnKeyDownEventCounter++;
+
         Dispatcher.Dispatch(
             new KeyDownEventAction(PlainTextEditorKey,
                 new ClassLib.Keyboard.KeyDownEventRecord(
@@ -130,18 +141,10 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
         _isFocused = false;
     }
 
-    private void FocusInputFocusTrapOnClick()
+    private void FocusPlainTextEditorOnClick()
     {
         _previousSequenceKey = null;
-        _inputFocusTrap.FocusAsync();
-    }
-    
-    private async Task OnScroll(EventArgs e)
-    {
-        var scrollTop = await JsRuntime.InvokeAsync<double>("plainTextEditor.getScrollTop",
-            PlainTextEditorDisplayId);
-
-        Console.WriteLine($"scrollTop: {scrollTop}");
+        _plainTextEditor.FocusAsync();
     }
 
     private string GetStyleCss()
@@ -181,7 +184,7 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
         PlainTextEditorSelector.SelectedValueChanged -= PlainTextEditorSelectorOnSelectedValueChanged;
 
         JsRuntime.InvokeVoidAsync("plainTextEditor.disposeScrollIntoView",
-            InputFocusTrapId);
+            ActiveRowPositionMarker);
 
         base.Dispose(disposing);
     }

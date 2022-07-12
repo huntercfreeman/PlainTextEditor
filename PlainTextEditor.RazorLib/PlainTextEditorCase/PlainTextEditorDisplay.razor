@@ -14,21 +14,29 @@ else
             Font Size: @(PlainTextEditorSelector.Value.RichTextEditorOptions.FontSizeInPixels)px
         </div>
 
-        <input @ref="_inputFocusTrap"
-               @onkeydown:preventDefault="true"
-               @onkeydown="OnKeyDown"
-               @onfocusin="OnFocusIn"
-               @onfocusout="OnFocusOut"
-               id="@InputFocusTrapId"
-               class="rte_visually-hidden rte_unselectable rte_focus-trap"
-               style="position: absolute; @InputFocusTrapTopStyleCss"/>
+        
+        
+        @*<span id="@ActiveRowPositionMarker"
+              class="rte_visually-hidden rte_unselectable rte_active-row-position-marker"
+              style="position: absolute; @InputFocusTrapTopStyleCss">
+        </span>*@
 
         <div id="@PlainTextEditorDisplayId"
              class="rte_plain-text-editor-display @IsFocusedCssClass"
              style="@GetStyleCss()"
-             @onclick="FocusInputFocusTrapOnClick"
-             @onscroll="OnScroll"
+             @ref="_plainTextEditor"
+             @onclick="FocusPlainTextEditorOnClick"
+             @onkeydown:preventDefault="true"
+             @onkeydown="OnKeyDown"
+             @onfocusin="OnFocusIn"
+             @onfocusout="OnFocusOut"
              tabindex="-1">
+            
+            <span id="@ActiveRowPositionMarker"
+                  class="rte_active-row-position-marker"
+                  style="height: 50px; width: 100%; background-color: aqua; opacity: 0.4; position: absolute; @InputFocusTrapTopStyleCss">
+            </span>
+
             <CascadingValue Value="PlainTextEditorKey">
                 <CascadingValue Value="_isFocused">
                     <CascadingValue Name="CurrentRowIndex" Value="PlainTextEditorSelector.Value.CurrentRowIndex">
