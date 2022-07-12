@@ -2,10 +2,10 @@ window.plainTextEditor = {
     intersectionObserver: 0,
     elementByIdIsIntersecting: new Map(),
     getActiveRowId: function (plainTextEditorGuid) {
-        return `rte_active-row_${plainTextEditorGuid}`;
+        return `pte_active-row_${plainTextEditorGuid}`;
     },
     getPlainTextEditorId: function (plainTextEditorGuid) {
-        return `rte_plain-text-editor-display_${plainTextEditorGuid}`;
+        return `pte_plain-text-editor-display_${plainTextEditorGuid}`;
     },
     initOnKeyDownProvider: function (onKeyDownProviderDisplayReference) {
         document.addEventListener('keydown', (e) => {
@@ -30,18 +30,17 @@ window.plainTextEditor = {
     clearInputElement: function (inputElementReference) {
         inputElementReference.value = "";
     },
-    scrollIntoViewIfOutOfViewport: function (inputElementReference) {
-        const value = this.elementByIdIsIntersecting.get(inputElementReference.id);
+    scrollIntoViewIfOutOfViewport: function (elementId) {
+        const value = this.elementByIdIsIntersecting.get(elementId);
 
         if (value.intersectionRatio >= 1) {
             return;
         }
 
-        const activeRow = document.getElementById(this.getActiveRowId(value.plainTextEditorGuid));
-
+        let element = document.getElementById(elementId);
         let plainTextEditorDisplay = document.getElementById(this.getPlainTextEditorId(value.plainTextEditorGuid));
 
-        plainTextEditorDisplay.scrollTop = activeRow.offsetTop - 25;
+        plainTextEditorDisplay.scrollTop = element.offsetTop - 5;
     },
     initializeIntersectionObserver: function () {
         let options = {

@@ -32,15 +32,15 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
     private Virtualize<(int Index, IPlainTextEditorRow PlainTextEditorRow)> _rowVirtualizeComponent = null!;
     private int _hadOnKeyDownEventCounter;
 
-    private string PlainTextEditorDisplayId => $"rte_plain-text-editor-display_{PlainTextEditorKey.Guid}";
-    private string ActiveRowPositionMarker => $"rte_focus-trap_{PlainTextEditorKey.Guid}";
-    private string ActiveRowId => $"rte_active-row_{PlainTextEditorKey.Guid}";
+    private string PlainTextEditorDisplayId => $"pte_plain-text-editor-display_{PlainTextEditorKey.Guid}";
+    private string ActiveRowPositionMarkerId => $"pte_active-row-position-marker_{PlainTextEditorKey.Guid}";
+    private string ActiveRowId => $"pte_active-row_{PlainTextEditorKey.Guid}";
 
     private string IsFocusedCssClass => _isFocused
-        ? "rte_focused"
+        ? "pte_focused"
         : "";
 
-    private string InputFocusTrapTopStyleCss => $"top: calc({PlainTextEditorSelector.Value!.CurrentRowIndex * 28.4}px - 12px);";
+    private string InputFocusTrapTopStyleCss => $"top: calc({PlainTextEditorSelector.Value!.CurrentRowIndex * 28.4}px - 2px);";
 
     private SequenceKey? _previousSequenceKey;
 
@@ -57,19 +57,12 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
         base.OnInitialized();
     }
 
-    private async void PlainTextEditorSelectorOnSelectedValueChanged(object? sender, IPlainTextEditor? e)
-    {
-        await _rowVirtualizeComponent.RefreshDataAsync();
-
-        await InvokeAsync(StateHasChanged);
-    }
-
-    protected override void OnAfterRender(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-           JsRuntime.InvokeVoidAsync("plainTextEditor.subscribeScrollIntoView",
-                ActiveRowPositionMarker,
+            await JsRuntime.InvokeVoidAsync("plainTextEditor.subscribeScrollIntoView",
+                ActiveRowPositionMarkerId,
                 PlainTextEditorKey.Guid);
         }
 
@@ -77,15 +70,12 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
         {
             _hadOnKeyDownEventCounter = 0;
 
-            JsRuntime.InvokeVoidAsync("plainTextEditor.scrollIntoViewIfOutOfViewport",
-                ActiveRowPositionMarker);
+            await JsRuntime.InvokeVoidAsync("plainTextEditor.scrollIntoViewIfOutOfViewport",
+                ActiveRowPositionMarkerId);
+            
+            Console.WriteLine("scrollIntoViewIfOutOfViewport");
         }
 
-        base.OnAfterRender(firstRender);
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
         await base.OnAfterRenderAsync(firstRender);
     }
 
@@ -110,6 +100,13 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
         _previousSequenceKey = PlainTextEditorSelector.Value.SequenceKey;
 
         return shouldRender;
+    }
+
+    private async void PlainTextEditorSelectorOnSelectedValueChanged(object? sender, IPlainTextEditor? e)
+    {
+        await _rowVirtualizeComponent.RefreshDataAsync();
+
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task OnKeyDown(KeyboardEventArgs e)
@@ -183,8 +180,8 @@ public partial class PlainTextEditorDisplay : FluxorComponent, IDisposable
     {
         PlainTextEditorSelector.SelectedValueChanged -= PlainTextEditorSelectorOnSelectedValueChanged;
 
-        JsRuntime.InvokeVoidAsync("plainTextEditor.disposeScrollIntoView",
-            ActiveRowPositionMarker);
+        _ = Task.Run(() => JsRuntime.InvokeVoidAsync("plainTextEditor.disposeScrollIntoView",
+            ActiveRowPositionMarkerId));
 
         base.Dispose(disposing);
     }

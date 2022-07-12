@@ -35,7 +35,7 @@ public partial class PlainTextEditorRowDisplay : FluxorComponent
     private bool _previousShouldDisplay;
 
     private string IsActiveCss => PlainTextEditorCurrentRowIndex == RowIndex
-        ? "rte_active"
+        ? "pte_active"
         : string.Empty;
 
     private string WidthStyleCss => $"width: calc(100% - {MostDigitsInARowNumber}ch);";

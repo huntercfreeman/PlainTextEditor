@@ -1,12 +1,12 @@
 @inherits Fluxor.Blazor.Web.Components.FluxorComponent
 
 <div id="@IsActiveRowId"
-     class="rte_plain-text-editor-row-display @IsActiveCss"
+     class="pte_plain-text-editor-row-display @IsActiveCss"
      @onclick="DispatchPlainTextEditorOnClickAction">
     <PlainTextEditorLineNumberDisplay MostDigitsInARowNumber="MostDigitsInARowNumber" />
     
     <CascadingValue Name="NotifyCharacterWasClicked" Value="new Action(() => _characterWasClicked = true)">
-        <div class="rte_plain-text-editor-row-display-body"
+        <div class="pte_plain-text-editor-row-display-body"
             style="@WidthStyleCss">
 
             @{

@@ -9,20 +9,13 @@
 }
 else
 {
-    <div class="rte_plain-text-editor-wrapping">
+    <div class="pte_plain-text-editor-wrapping">
         <div>
             Font Size: @(PlainTextEditorSelector.Value.RichTextEditorOptions.FontSizeInPixels)px
         </div>
 
-        
-        
-        @*<span id="@ActiveRowPositionMarker"
-              class="rte_visually-hidden rte_unselectable rte_active-row-position-marker"
-              style="position: absolute; @InputFocusTrapTopStyleCss">
-        </span>*@
-
         <div id="@PlainTextEditorDisplayId"
-             class="rte_plain-text-editor-display @IsFocusedCssClass"
+             class="pte_plain-text-editor-display @IsFocusedCssClass"
              style="@GetStyleCss()"
              @ref="_plainTextEditor"
              @onclick="FocusPlainTextEditorOnClick"
@@ -32,9 +25,9 @@ else
              @onfocusout="OnFocusOut"
              tabindex="-1">
             
-            <span id="@ActiveRowPositionMarker"
-                  class="rte_active-row-position-marker"
-                  style="height: 50px; width: 100%; background-color: aqua; opacity: 0.4; position: absolute; @InputFocusTrapTopStyleCss">
+            <span id="@ActiveRowPositionMarkerId"
+                  class="pte_visually-hidden pte_unselectable pte_active-row-position-marker"
+                  style="position: absolute; @InputFocusTrapTopStyleCss">
             </span>
 
             <CascadingValue Value="PlainTextEditorKey">
